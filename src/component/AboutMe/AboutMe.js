@@ -1,13 +1,31 @@
-import React, {useState} from 'react'
+import React from 'react'
 import Typist from 'react-typist'
 import SvgIcon from '@material-ui/core/SvgIcon'
 
 
-const AboutMe = () => {
-    const [command, setCommand] = useState(false)
+class AboutMe extends React.Component {
+    constructor(props) {
+        super(props)
+        this.state = {
+            command: false,
+            skills: "",
+            certs: ""
+        }
+    }
+
+    componentDidMount = async () => {
+        const skills = await fetch("http://about-me-api.herokuapp.com/skills/all")
+        const skillsResponse = await skills.json()
+        this.setState({skills: skillsResponse})
+        const certifications = await fetch("http://about-me-api.herokuapp.com/cert/all")
+        const certResponse = await certifications.json()
+        this.setState({certs: certResponse})
+    }
+
+    render() {
 
     const commandHandler = () => (
-        setCommand(true)
+        this.setState({command: true})
     )
 
     return (
@@ -23,7 +41,7 @@ const AboutMe = () => {
                         ./show_about_me.sh
                 </Typist>
 
-                {command ? (
+                {this.state.command ? (
                 <Typist startDelay={1000} stdTypingDelay={0} avgTypingDelay={0} cursor={{blink: false, show: false}}>
 
                     <p className="open">{"{"}</p>
@@ -42,29 +60,11 @@ const AboutMe = () => {
                         {"Skills: ["}
                     </p>
             
-                    <p className="array-items">
-                        {"Python,"}
-                    </p>
-
-                    <p className="array-items">
-                        {"Flask,"}
-                    </p>
-
-                    <p className="array-items">
-                        {"Javascript,"}
-                    </p>
-
-                    <p className="array-items">
-                        {"React,"}
-                    </p>
-
-                    <p className="array-items">
-                        {"HTML,"}
-                    </p>
-
-                    <p className="array-items">
-                        {"CSS,"}
-                    </p>
+                    {this.state.skills.map((skill, index) => (
+                        <p key={skill.name} className="array-items">
+                            {skill.name}{this.state.skills.length - 1 === index ? "" : ","}
+                        </p>
+                    ))}
 
                     <p className="array-close">
                         {"],"}
@@ -99,20 +99,19 @@ const AboutMe = () => {
                         {"Certifications: {"}
                     </p>
                     
-                    <p className="suboject">
-                        {"Responsive Web Design: FreeCodeCamp.org,"}
-                    </p>
-                    <p className="suboject">
-                        {"Rest API with Flask and Python: Udemy"}
-                    </p>
+                    {this.state.certs.map((cert, index) => (
+                        <p className="suboject">
+                            {cert.name}: {cert.company}{this.state.certs.length - 1 === index ? "" : ","}
+                        </p>
+                    ))}
                     <p className="suboject-close">{"}"}</p>
                     <p className="close">{"}"}</p>
                 </Typist>
                 ) : ("")}
-
             </div>
         </div>
-    )
+        )
+    }
 }
 
 export default AboutMe
