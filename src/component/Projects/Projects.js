@@ -1,13 +1,28 @@
-import React, {useState} from 'react'
+import React from 'react'
 import Typist from 'react-typist'
 
-const Projects = () => {
+class Projects extends React.Component {
+    constructor(props) {
+        super(props)
+        this.state = {
+            command: false,
+            projects: ""
+        }
+    }
 
-    const [command, setCommand] = useState(false)
+    componentDidMount = async () => {
+        const response = await fetch("http://about-me-api.herokuapp.com/project/all")
+        const json = await response.json()
+        this.setState({projects: json})
+    }
+    
+    render() {
 
     const commandHandler = () => (
-        setCommand(true)
-        )
+        this.setState({command: true})
+    )
+    
+    console.log(this.state.projects)
 
     return (
         <div className="textContent">
@@ -22,18 +37,16 @@ const Projects = () => {
                         ./show_my_projects.sh 
                 </Typist>
 
-                {command ? (
+                {this.state.command ? (
                 <Typist startDelay={1000} stdTypingDelay={0} avgTypingDelay={1} cursor={{blink: false, show: false}}>
 
                 <p className="open">{"{"}</p>
 
-                <p className="object">
-                    This Portfolio: <a href="https://github.com/mzord/AlvesPortfolio" rel="noopener noreferrer" target="_blank">http://tiny.cc/3xrg8y</a>
-                </p>
-
-                <p className="object">
-                    This Portfolio API: <a href="http://tiny.cc/nwrg8y" rel="noopener noreferrer" target="_blank">http://tiny.cc/nwrg8y</a>
-                </p>
+                {this.state.projects.map((project, index) => (
+                    <p key={project.name} className="object">
+                        {project.name}: {project.link}{this.state.projects.length - 1 === index ? "" : ","}
+                    </p>
+                ))}
 
                 <p className="close">
                     {"}"}
@@ -42,9 +55,7 @@ const Projects = () => {
                 
             </div>
         </div>
-            
-
-    )
+        )
+    }
 }
-
 export default Projects
